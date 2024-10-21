@@ -2,7 +2,7 @@ const mysql = require("mysql");
 const express = require("express");
 
 var app = express();
-app.use(express.json()); // for parsing application/json
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Palvelimen käynnistys portissa 3000
@@ -80,6 +80,15 @@ app.post("/urheilijat", (req, res) => {
 app.put("/urheilijat/:id", (req, res) => {
   const id = Number(req.params.id);
   const updatedUrheilija = req.body;
+
+  // Muutetaan päivämäärä oikeaan formaattiin
+  if (updatedUrheilija.syntymavuosi) {
+    const syntymavuosiDate = new Date(updatedUrheilija.syntymavuosi);
+    updatedUrheilija.syntymavuosi = syntymavuosiDate
+      .toISOString()
+      .split("T")[0];
+  }
+
   conn.query(
     "UPDATE urheilijat SET ? WHERE id = ?;",
     [updatedUrheilija, id],
